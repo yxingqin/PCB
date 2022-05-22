@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Dialogs 1.3
 ApplicationWindow {
     id:_window
     width:1000
@@ -29,6 +30,19 @@ ApplicationWindow {
     {
         _console.append(`<b style='color: white;'>${msg}</b>`);
     }
+    function _loadInsFile()
+    {
+        let path=_tfFile.text.replace("file:///","");
+        if(path.length>0&&$Simulator.loadInsFile(path))
+        {
+            _drapArea.z=1;
+            _drapArea.visible=false;
+
+        }else
+        {
+            _msgDloadError.open();
+        }
+    }
 
     menuBar: MenuBar{
         Menu {
@@ -36,6 +50,9 @@ ApplicationWindow {
             title:"文件"
             Action {
                 text:"打开"
+                onTriggered: {
+                    _fileDialog.open();
+                }
             }
             MenuSeparator { }
             Action {
@@ -139,6 +156,7 @@ ApplicationWindow {
                     }
                     Button {
                         text:"载入"
+                        onClicked:_loadInsFile
                     }
                 }
                 RowLayout {
@@ -192,8 +210,8 @@ ApplicationWindow {
                     onDropped: {
                         if (drop.hasUrls) {
                             _tfFile.text = drop.urls[0].replace("file:///", "");
-                            _drapArea.z=1
-                            _drapArea.visible=false
+                            _loadInsFile()
+
                         }
                     }
                 }
@@ -406,6 +424,27 @@ ApplicationWindow {
                     }
                 }
             }
+        }
+    }
+    MessageDialog {
+        id: _msgDloadError
+        title: "错误"
+        visible:false
+        icon:StandardIcon.Critical
+        standardButtons:StandardButton.Ok
+        text: "载入文件失败，请检查文件格式或者路径是否正确"
+        onAccepted: {
+            _tfFile.text="";
+        }
+   }
+    FileDialog {
+        id: _fileDialog
+        title: "选择文件"
+        folder: shortcuts.desktop
+        nameFilters:[ "指令文件 (*.txt)", "All files (*)" ]
+        onAccepted: {
+            _tfFile.text=_fileDialog.fileUrl;
+            _loadInsFile();
         }
     }
 

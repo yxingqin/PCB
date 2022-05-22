@@ -2,18 +2,14 @@
 #define PCB_H
 
 #include"Instruction.h"
-#include<QLinkedList>
+#include<list>
 #include<QString>
 class PCB
 {
-private:
-    int m_id;//进程id
-    QLinkedList<Instruction> m_insList;//指令表
-    int m_totalTime;//进程周转的时间
-    int m_curIns;//当前运行到的指令索引
 public:
-    PCB(/* args */);
-    void addIns(const Instruction& ins); 
+    using InsList=std::list<Instruction>;
+    PCB(int id);
+    void addIns(Instruction&& ins); 
     /**
      * @brief 更新当前进程状态  
      * 
@@ -22,6 +18,25 @@ public:
      */
     int tick(int time);
     ~PCB();
+
+    inline int id()const
+    {
+        return m_id;
+    }
+    inline  InsList& insList()
+    {
+        return m_insList;
+    }
+    inline size_t insCount()
+    {
+        return m_insList.size();
+    }
+    QString toString();
+private:
+    int m_id;//进程id
+    InsList m_insList;//指令表
+    int m_totalTime;//进程周转的时间
+    int m_curIns;//当前运行到的指令索引
 };
 
 
