@@ -19,7 +19,9 @@ int main(int argc, char *argv[])
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
-    engine.rootContext()->setContextProperty("$Simulator",Simulator::getInstence());
+    auto s= Simulator::getInstence();
+    engine.rootContext()->setContextProperty("$Simulator",s);
+    engine.rootContext()->setContextProperty("$ModelReadyQue",s->getModelReadyQue());
     engine.load(url);
     Simulator::setWindow(engine.rootObjects().first());
     int ret = app.exec();

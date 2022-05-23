@@ -11,6 +11,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 find_package(Qt5 REQUIRED COMPONENTS Quick Core Qml)
 
 include_directories(source/Scheduler)
+include_directories(source/Model)
 file(GLOB_RECURSE SRCS RELATIVE  ${CMAKE_CURRENT_SOURCE_DIR} LINK_DIRECTORIES false
      ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/source/.h
     )

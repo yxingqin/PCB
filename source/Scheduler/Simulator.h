@@ -2,6 +2,7 @@
 #define SIMULATOR
 #include<QObject>
 #include<QtQml>
+#include"ModelPCBList.h"
 class Scheduler;
 class QThread;
 /**
@@ -19,6 +20,12 @@ private:
     QThread* m_thread;//模拟线程
     Scheduler* m_scheduler;//调度器
     static Simulator* instence;
+    //每一个队列的视图
+    ModelPCBList m_modelReadyQue;
+    ModelPCBList m_modelInputQue;
+    ModelPCBList m_modelOutputQue;
+    ModelPCBList m_modelWaitQue;
+    ModelPCBList m_modelOverQue;
 private:
     Simulator();
 public:
@@ -35,6 +42,13 @@ public:
      * @return bool 返回 是否载入成功 
      */
     Q_INVOKABLE bool loadInsFile(const QString& path);
+    inline ModelPCBList* getModelReadyQue()
+    {
+        return &m_modelReadyQue;
+    }
+    
+public slots:
+    void onUpdateModel(int model);
 };
 
 #endif // SIMULATOR

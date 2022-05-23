@@ -8,10 +8,11 @@
  *
  * 放在一个单独的线程进行模拟
  */
+class Simulator;
 class Scheduler : public QObject
 {
+    friend Simulator;
     Q_OBJECT
-    using PCBList=std::list<PCB>;
 private:
     int m_timeSliceLen;//时间片长度 
     PCBList m_readyQue;//就绪队列
@@ -51,6 +52,7 @@ public slots:
     void run();//开始调度 
     void clear();//清空调度状态
 signals:
+    void updateModel(int model);//更新对于model的信号
 };
 
 #endif // SHADULER_H

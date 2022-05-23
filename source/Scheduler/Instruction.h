@@ -3,7 +3,7 @@
 #include<QString>
 enum class InstructionType
 {
-    UNKNOW = -1,
+    ERROR = -1,
     CPU,
     INPUT,
     OUTPUT,
@@ -12,8 +12,12 @@ enum class InstructionType
 
 struct Instruction
 {
-    InstructionType iType = Instruction::iType;
-    int runTime = 0;
+    InstructionType iType;
+    int runTime;
+    //Instruction():iType(InstructionType::ERROR),runTime(0){}
+    //Instruction(InstructionType type,int timeLen):iType(type),runTime(timeLen){}
+    //Instruction(const Instruction& ins):iType(ins.iType),runTime(ins.runTime){}
+    ////Instruction(Instruction&& ins):iType(ins.iType),runTime(ins.runTime){}
     static InstructionType CharToType(char c)
     {
         switch (c)
@@ -27,30 +31,30 @@ struct Instruction
         case 'W':
             return InstructionType::WAIT;
         default:
-            return InstructionType::UNKNOW;
+            return InstructionType::ERROR;
         }
     }
-    QString toString()
+    char insTypeChar()const
     {
-        QString ins="[ ";
         switch (iType)
         {
         case InstructionType::CPU:
-            ins+="C : ";
-            break;
+            return 'C';
         case InstructionType::INPUT:
-            ins+="I : ";
-            break;
+            return  'I';
         case InstructionType::OUTPUT:
-            ins+="O : ";
-            break;
+            return 'O';
         case InstructionType::WAIT:
-            ins+="W : ";
-            break;
+            return 'W';
         default:
-            ins+="ERROR : ";
-            break;
+            return 'E';
         }
+    }
+    QString toString()const
+    {
+        QString ins="[ ";
+        ins+=insTypeChar();
+        ins+=" ";
         ins+=QString::number(runTime);
         ins+=" ]";
         return ins;   

@@ -2,14 +2,17 @@
 #define PCB_H
 
 #include"Instruction.h"
-#include<list>
 #include<QString>
+#include<QList>
+#include<QDebug>
+class PCB;
+using PCBList=QList<PCB>;
 class PCB
 {
 public:
-    using InsList=std::list<Instruction>;
+    using InsList=QList<Instruction>;
     PCB(int id);
-    void addIns(Instruction&& ins); 
+    void addIns(Instruction ins); 
     /**
      * @brief 更新当前进程状态  
      * 
@@ -18,25 +21,42 @@ public:
      */
     int tick(int time);
     ~PCB();
-
+    inline const Instruction curIns()const
+    {
+        //mmp 遇到了迭代器失效的问题 气死了
+        //Instruction ins=*m_curInsIt;
+        //qDebug()<<"begein"<<m_insList.front().toString();
+        //qDebug()<<"curIns"<<m_curInsIt->toString();
+        if(m_curInsIt!=m_insList.end())
+            return *m_curInsIt;
+        return {};
+    }
+    inline bool isRunOver()const
+    {
+        return m_curInsIt==m_insList.cend();
+    }
     inline int id()const
     {
         return m_id;
     }
-    inline  InsList& insList()
+    inline const InsList& insList()const
     {
         return m_insList;
     }
-    inline size_t insCount()
+    inline size_t insCount()const
     {
         return m_insList.size();
+    }
+    inline int totalTime()const
+    {
+        return m_totalTime;
     }
     QString toString();
 private:
     int m_id;//进程id
     InsList m_insList;//指令表
     int m_totalTime;//进程周转的时间
-    int m_curIns;//当前运行到的指令索引
+    InsList::iterator m_curInsIt;// 指示当前运行到的指令
 };
 
 

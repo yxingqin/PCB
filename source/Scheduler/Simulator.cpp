@@ -12,8 +12,13 @@ Simulator::Simulator()
     m_scheduler=new Scheduler;
     m_thread=new QThread(this);
     m_scheduler->moveToThread(m_thread);
+    connect(m_scheduler,&Scheduler::updateModel,this,&Simulator::onUpdateModel);
+    m_modelInputQue.setPCBList(&m_scheduler->m_inputQue);
+    m_modelOutputQue.setPCBList(&m_scheduler->m_outputQue);
+    m_modelReadyQue.setPCBList(&m_scheduler->m_readyQue);
+    m_modelOverQue.setPCBList(&m_scheduler->m_overQue);
+    m_modelOverQue.setShowModel(ModelPCBList::ShowModel::GLOBSTATUS);
 }
-
 Simulator::~Simulator()
 {
     m_scheduler->stop();
@@ -64,7 +69,7 @@ bool Simulator::loadInsFile(const QString& path)
         int i=0;
         int len=data.length();
         int procId=0;
-        std::list<PCB> pcbList;
+        PCBList pcbList;
         while(i<len)//解析进程队列
         { 
             ++procId;         
@@ -74,7 +79,7 @@ bool Simulator::loadInsFile(const QString& path)
             while(++i<len&&data[i]!='H')//解析进程指令
             {
                 auto type=Instruction::CharToType(data[i].toLatin1());
-                if(type!=InstructionType::UNKNOW)
+                if(type!=InstructionType::ERROR)
                 {
                     //获取运行时常
                     int timeLen=0;
@@ -97,8 +102,15 @@ bool Simulator::loadInsFile(const QString& path)
             for(auto& i:pcbList)
                 printLog(i.toString());
             m_scheduler->setReadyQue(std::move(pcbList));
+            onUpdateModel(0);
             return true;
         }    
     }
     return false;
+}
+
+void Simulator::onUpdateModel(int model)
+{
+    //TODO: 更新视图事件
+    m_modelReadyQue.updateData();
 }

@@ -32,18 +32,15 @@ ApplicationWindow {
     }
     function _loadInsFile()
     {
-        let path=_tfFile.text.replace("file:///","");
-        if(path.length>0&&$Simulator.loadInsFile(path))
+        _tfFile.text=_tfFile.text.replace("file:///","");
+        if( _tfFile.text.length>0&&$Simulator.loadInsFile( _tfFile.text))
         {
-            _drapArea.z=1;
             _drapArea.visible=false;
-
         }else
         {
             _msgDloadError.open();
         }
     }
-
     menuBar: MenuBar{
         Menu {
 
@@ -90,14 +87,21 @@ ApplicationWindow {
                 Text {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    width: parent.width/2
+                    width: parent.width/3
                     height: parent.height
                     text: "进程"
                 }
                 Text {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    width: parent.width/2
+                    width: parent.width/3
+                    height: parent.height
+                    text: "指令"
+                }
+                Text {
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    width: parent.width/3
                     height: parent.height
                     text: "剩余时间"
                 }
@@ -116,16 +120,23 @@ ApplicationWindow {
                 Text {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    width: parent.width/2
+                    width: parent.width/3
                     height: parent.height
-                    text: "p"+index
+                    text: "p"+model.pcbId
                 }
                 Text {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    width: parent.width/2
+                    width: parent.width/3
                     height: parent.height
-                    text: index+" ms"
+                    text: model.insType
+                }
+                Text {
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    width: parent.width/3
+                    height: parent.height
+                    text: model.timeLen+" ms"
                 }
             }
         }
@@ -152,11 +163,25 @@ ApplicationWindow {
                     TextField {
                         id:_tfFile
                         Layout.fillWidth: true
-                        placeholderText: "选择载入指令文件"
+                        placeholderText: "双击选择载入指令文件"
+                        MouseArea {
+                            anchors.fill: parent
+                            onPressed:{
+                                _tfFile.focus=true
+                            }
+                            onDoubleClicked: {
+                                _fileDialog.open()
+                            }
+                        }
                     }
                     Button {
                         text:"载入"
-                        onClicked:_loadInsFile
+                        onClicked:{
+                            if(_tfFile.text.length>0)
+                            {
+                               _loadInsFile();
+                            }
+                        }
                     }
                 }
                 RowLayout {
@@ -209,9 +234,8 @@ ApplicationWindow {
                     anchors.fill: parent
                     onDropped: {
                         if (drop.hasUrls) {
-                            _tfFile.text = drop.urls[0].replace("file:///", "");
-                            _loadInsFile()
-
+                            _tfFile.text=drop.urls[0];
+                            _loadInsFile();
                         }
                     }
                 }
@@ -256,7 +280,7 @@ ApplicationWindow {
                             anchors.fill: parent
                             anchors.margins: 10
                             spacing:2
-                            model: 15
+                            model: $ModelReadyQue
                             clip:true
                             header:_comLVHeader
                             delegate: _comLVDelegate
@@ -277,7 +301,7 @@ ApplicationWindow {
                             model: 15
                             clip:true
                             header:_comLVHeader
-                            delegate: _comLVDelegate
+//                            delegate: _comLVDelegate
                         }
                     }
                     XGroupBox {
@@ -295,7 +319,7 @@ ApplicationWindow {
                             model: 15
                             clip:true
                             header:_comLVHeader
-                            delegate: _comLVDelegate
+//                            delegate: _comLVDelegate
                         }
                     }
                     XGroupBox {
@@ -313,7 +337,7 @@ ApplicationWindow {
                             model: 15
                             clip:true
                             header:_comLVHeader
-                            delegate: _comLVDelegate
+//                            delegate: _comLVDelegate
                         }
                     }
                     XGroupBox {
