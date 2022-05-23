@@ -1,19 +1,28 @@
 #include"PCB.h"
 
-PCB::PCB(int id):m_id(id),m_totalTime(0),m_curInsIt(m_insList.begin())
+PCB::PCB(int id):m_id(id),m_totalTime(0)
 {
 }
 PCB::~PCB(){}
 
-int PCB::tick(int time)
+int PCB::tick(int ticktime)
 {
-    return 0;
+    int tmp = ticktime - m_insList.front().runTime;
+    if(tmp>=0)
+    {
+        m_totalTime+=m_insList.front().runTime;
+        m_insList.pop_front();//删除改指令
+    }
+    else
+    {
+        m_insList.front().runTime -= ticktime;//更新指令时间
+        m_totalTime+=ticktime;
+    }
+    return tmp;
 }
 void PCB::addIns(Instruction ins)
 {
-    //qDebug()<<"add ins"<<ins.toString();
     m_insList.push_back(ins);
-    m_curInsIt=m_insList.begin();
 }
 
 QString PCB::toString()

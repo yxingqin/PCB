@@ -12,6 +12,7 @@ Simulator::Simulator()
     m_scheduler=new Scheduler;
     m_thread=new QThread(this);
     m_scheduler->moveToThread(m_thread);
+    m_thread->start();
     connect(m_scheduler,&Scheduler::updateModel,this,&Simulator::onUpdateModel);
     m_modelInputQue.setPCBList(&m_scheduler->m_inputQue);
     m_modelOutputQue.setPCBList(&m_scheduler->m_outputQue);
@@ -75,11 +76,11 @@ bool Simulator::loadInsFile(const QString& path)
             ++procId;         
             while(i<len&&data[i]!='P')
                 ++i;
-            PCB pcb(procId);
+            PCB* pcb=new PCB(procId);
             while(++i<len&&data[i]!='H')//解析进程指令
             {
                 auto type=Instruction::CharToType(data[i].toLatin1());
-                if(type!=InstructionType::ERROR)
+                if(type!=InstructionType::NONE)
                 {
                     //获取运行时常
                     int timeLen=0;
@@ -89,18 +90,18 @@ bool Simulator::loadInsFile(const QString& path)
                     }
                     if(timeLen>0)
                     {
-                        pcb.addIns({type,timeLen});
+                        pcb->addIns({type,timeLen});
                     }
                 } 
             }
-            if(pcb.insCount()>0)
-                pcbList.push_back(std::move(pcb));   
+            if(pcb->insCount()>0)
+                pcbList.push_back(pcb);   
         }
         if(pcbList.size()>0)
         {
             printInfo("指令加载成功");
-            for(auto& i:pcbList)
-                printLog(i.toString());
+            for(auto i:pcbList)
+                printLog(i->toString());
             m_scheduler->setReadyQue(std::move(pcbList));
             onUpdateModel(0);
             return true;

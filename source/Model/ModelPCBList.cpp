@@ -33,17 +33,17 @@ QVariant ModelPCBList::data(const QModelIndex &index, int role) const
     if (row < m_pcbList->size())
     {
         auto pcb = m_pcbList->at(row);
-        auto ins = pcb.curIns();
+        auto ins = pcb->curIns();
         switch (role)
         {
         case PCBID:
-            return QString::number(pcb.id());
+            return QString::number(pcb->id());
         case INSTYPE:
             return QString(ins.insTypeChar());
         case TIMELEN:
             if (m_showModel == ShowModel::CURSTATUS)
                 return QString::number(ins.runTime);
-            return QString::number(pcb.totalTime());
+            return QString::number(pcb->totalTime());
         }
     }
     return QVariant();
@@ -51,6 +51,11 @@ QVariant ModelPCBList::data(const QModelIndex &index, int role) const
 
 void ModelPCBList::updateData()
 {
-    beginResetModel();
-    endResetModel();
+//    beginResetModel();
+    //endResetModel();
+    emit layoutChanged();
+    //emit layoutAboutToBeChanged();
+    //emit modelReset();
+    //qDebug()<<m_pcbList->size();
+    //emit headerDataChanged(Qt::Orientation::Horizontal,0,m_pcbList->size()-1);
 }

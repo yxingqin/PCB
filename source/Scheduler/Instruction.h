@@ -3,7 +3,7 @@
 #include<QString>
 enum class InstructionType
 {
-    ERROR = -1,
+    NONE = -1,//标记运行完毕 ,错误
     CPU,
     INPUT,
     OUTPUT,
@@ -31,7 +31,7 @@ struct Instruction
         case 'W':
             return InstructionType::WAIT;
         default:
-            return InstructionType::ERROR;
+            return InstructionType::NONE;
         }
     }
     char insTypeChar()const

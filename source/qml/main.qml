@@ -179,7 +179,11 @@ ApplicationWindow {
                         onClicked:{
                             if(_tfFile.text.length>0)
                             {
-                               _loadInsFile();
+//                                _lv_ready.visible=false
+//                                _lv_ready.visible=true
+//                                _lv_ready.forceLayout();
+//                                console.log("更新数据")
+                                _loadInsFile();
                             }
                         }
                     }
@@ -236,6 +240,7 @@ ApplicationWindow {
                         if (drop.hasUrls) {
                             _tfFile.text=drop.urls[0];
                             _loadInsFile();
+
                         }
                     }
                 }
@@ -301,7 +306,7 @@ ApplicationWindow {
                             model: 15
                             clip:true
                             header:_comLVHeader
-//                            delegate: _comLVDelegate
+                            //                            delegate: _comLVDelegate
                         }
                     }
                     XGroupBox {
@@ -319,7 +324,7 @@ ApplicationWindow {
                             model: 15
                             clip:true
                             header:_comLVHeader
-//                            delegate: _comLVDelegate
+                            //                            delegate: _comLVDelegate
                         }
                     }
                     XGroupBox {
@@ -337,7 +342,7 @@ ApplicationWindow {
                             model: 15
                             clip:true
                             header:_comLVHeader
-//                            delegate: _comLVDelegate
+                            //                            delegate: _comLVDelegate
                         }
                     }
                     XGroupBox {
@@ -460,7 +465,7 @@ ApplicationWindow {
         onAccepted: {
             _tfFile.text="";
         }
-   }
+    }
     FileDialog {
         id: _fileDialog
         title: "选择文件"
