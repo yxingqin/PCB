@@ -21,7 +21,7 @@ ApplicationWindow {
         property color textColor: "white"
         property color hoverColor: "gray"
     }
-    function _printMessageInfo(msg,color="blue")
+    function _printMessageInfo(msg,color="gold")
     {
         var str = `${(new Date()).toTimeString().split(' ')[0]}: ${msg}`;
         _console.append(`<b style='color: ${color};'>${str}</b>`);
@@ -53,7 +53,6 @@ ApplicationWindow {
         {
             $Simulator.scheduler(_sbtimebeSlice.value)
         }
-
     }
     MessageDialog {
         id: _msgDl
@@ -64,6 +63,18 @@ ApplicationWindow {
         text: ""
         onAccepted: {
             _tfFile.text="";
+        }
+    }
+    FileDialog {
+        id: _fileDialogOut
+        title: "选择路径"
+        selectExisting: false
+        folder: shortcuts.desktop
+        nameFilters:[ "指令文件 (*.txt)", "All files (*)" ]
+        onAccepted: {
+            console.log(fileUrl);
+            let path=_fileDialogOut.fileUrls[0].replace("file:///","");
+            $Simulator.saveLogFile(path)
         }
     }
     FileDialog {
@@ -83,6 +94,7 @@ ApplicationWindow {
             Action {
                 text:"打开"
                 onTriggered: {
+
                     _fileDialog.open();
                 }
             }
@@ -103,6 +115,7 @@ ApplicationWindow {
             }
             Action  {
                 text: "保存日志"
+                onTriggered: _fileDialogOut.open()
             }
         }
         Menu{
@@ -212,7 +225,7 @@ ApplicationWindow {
                     Button {
                         text:"载入"
                         onClicked:{
-                                _loadInsFile();
+                            _loadInsFile();
                         }
                     }
                 }
@@ -237,7 +250,7 @@ ApplicationWindow {
                     }
                 }
                 Button {
-                    text:"开始调度/暂停调度"
+                    text:"开始调度"
                     onClicked:  {
                         _start()
                     }
@@ -294,7 +307,7 @@ ApplicationWindow {
                         Text {
                             id:_curPrc
                             anchors.centerIn: parent
-                            text:"P0"
+                            text: $Simulator.curRunProc
                         }
 
                     }
@@ -452,19 +465,15 @@ ApplicationWindow {
                 anchors.margins: 5
                 TextArea {
                     id:_console
+                    objectName:"_console"
                     textFormat: "RichText"
                     wrapMode: "Wrap"
                     selectByMouse: true
                     color:_theme.textColor
-
                     readOnly: true
                     onTextChanged:{
                         //滚动条向下移动
                         _sv_log.ScrollBar.vertical.position = 1 - _sv_log.ScrollBar.vertical.size;
-                    }
-                    Component.onCompleted: {
-                        _printMessageInfo("测试")
-                        _printMessageLog("测试")
                     }
                 }
             }
@@ -481,6 +490,7 @@ ApplicationWindow {
                     }
                     Action  {
                         text: "保存日志"
+                        onTriggered:  _fileDialogOut.open()
                     }
                 }
             }

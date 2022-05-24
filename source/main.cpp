@@ -21,6 +21,6 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
     Simulator s(engine);//会对engine 注册一些属性以及获取qml端的root对象
     engine.load(url);
-    Simulator::setWindow(engine.rootObjects().first());
+    s.init(engine.rootObjects().first());//获取qml对象
     return  app.exec();
 }

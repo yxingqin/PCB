@@ -18,6 +18,7 @@ class Simulator:public QObject
     Q_PROPERTY(QString curRunProc READ curRunProc NOTIFY tick)
 private:
     static QObject* window;
+    QObject* m_console;
     QThread* m_thread;//模拟线程
     Scheduler* m_scheduler;//调度器
     //每一个队列的视图
@@ -29,8 +30,8 @@ private:
 public:
     Simulator(QQmlApplicationEngine& engine);
     static void printLog(const QString& msg);//打印日志
-    static void printInfo(const QString& info,const QString& color="blue");
-    static void setWindow(QObject* window);
+    static void printInfo(const QString& info,const QString& color="gold");
+    void init(QObject* window);
     virtual ~Simulator();
     /**
      * @brief 载入指令 
@@ -39,7 +40,10 @@ public:
      * @return bool 返回 是否载入成功 
      */
     Q_INVOKABLE bool loadInsFile(const QString& path);
+    Q_INVOKABLE void saveLogFile(const QString & path);
+
     Q_INVOKABLE void scheduler(int timeLen);//调度
+    
     Q_INVOKABLE inline bool isRunning()
     {
         return m_scheduler->isRunning();

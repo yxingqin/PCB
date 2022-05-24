@@ -14,10 +14,6 @@ struct Instruction
 {
     InstructionType iType;
     int runTime;
-    //Instruction():iType(InstructionType::ERROR),runTime(0){}
-    //Instruction(InstructionType type,int timeLen):iType(type),runTime(timeLen){}
-    //Instruction(const Instruction& ins):iType(ins.iType),runTime(ins.runTime){}
-    ////Instruction(Instruction&& ins):iType(ins.iType),runTime(ins.runTime){}
     static InstructionType CharToType(char c)
     {
         switch (c)

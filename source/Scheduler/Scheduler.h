@@ -3,7 +3,7 @@
 #include <QObject>
 #include "PCB.h"
 #include <list>
-#include"PCBListModel.h"
+
 /**
  * @brief 时间片轮转算法模拟实现
  *
