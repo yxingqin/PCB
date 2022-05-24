@@ -38,7 +38,42 @@ ApplicationWindow {
             _drapArea.visible=false;
         }else
         {
-            _msgDloadError.open();
+            _msgDl.text="载入文件失败，请检查文件格式或者路径是否正确";
+            _msgDl.open();
+        }
+    }
+    //开始模拟
+    function _start()
+    {
+        if($Simulator.isRunning())
+        {
+            _msgDl.text="请勿重复进行模拟";
+            _msgDl.open();
+        }else
+        {
+            $Simulator.scheduler(_sbtimebeSlice.value)
+        }
+
+    }
+    MessageDialog {
+        id: _msgDl
+        title: "错误"
+        visible:false
+        icon:StandardIcon.Critical
+        standardButtons:StandardButton.Ok
+        text: ""
+        onAccepted: {
+            _tfFile.text="";
+        }
+    }
+    FileDialog {
+        id: _fileDialog
+        title: "选择文件"
+        folder: shortcuts.desktop
+        nameFilters:[ "指令文件 (*.txt)", "All files (*)" ]
+        onAccepted: {
+            _tfFile.text=_fileDialog.fileUrl;
+            _loadInsFile();
         }
     }
     menuBar: MenuBar{
@@ -177,14 +212,7 @@ ApplicationWindow {
                     Button {
                         text:"载入"
                         onClicked:{
-                            if(_tfFile.text.length>0)
-                            {
-//                                _lv_ready.visible=false
-//                                _lv_ready.visible=true
-//                                _lv_ready.forceLayout();
-//                                console.log("更新数据")
                                 _loadInsFile();
-                            }
                         }
                     }
                 }
@@ -197,9 +225,9 @@ ApplicationWindow {
                         color:_theme.textColor
                     }
                     SpinBox {
-                        id:_tfTimeSlice
+                        id:_sbtimebeSlice
                         value: 100
-                        from:0
+                        from:50
                         to:5000
                     }
                     Text {
@@ -210,6 +238,9 @@ ApplicationWindow {
                 }
                 Button {
                     text:"开始调度/暂停调度"
+                    onClicked:  {
+                        _start()
+                    }
                 }
             }
         }
@@ -455,27 +486,4 @@ ApplicationWindow {
             }
         }
     }
-    MessageDialog {
-        id: _msgDloadError
-        title: "错误"
-        visible:false
-        icon:StandardIcon.Critical
-        standardButtons:StandardButton.Ok
-        text: "载入文件失败，请检查文件格式或者路径是否正确"
-        onAccepted: {
-            _tfFile.text="";
-        }
-    }
-    FileDialog {
-        id: _fileDialog
-        title: "选择文件"
-        folder: shortcuts.desktop
-        nameFilters:[ "指令文件 (*.txt)", "All files (*)" ]
-        onAccepted: {
-            _tfFile.text=_fileDialog.fileUrl;
-            _loadInsFile();
-        }
-    }
-
-
 }

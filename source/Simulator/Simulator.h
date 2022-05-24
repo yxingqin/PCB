@@ -2,8 +2,8 @@
 #define SIMULATOR
 #include<QObject>
 #include<QtQml>
+#include"Scheduler.h"
 class QQmlApplicationEngine;
-class Scheduler;
 class QThread;
 /**
  * @brief 进程调度模拟
@@ -14,6 +14,7 @@ class Simulator:public QObject
 {
     Q_OBJECT
     QML_ELEMENT
+    Q_PROPERTY(QString curRunProc READ curRunProc NOTIFY tick)
 private:
     static QObject* window;
     QThread* m_thread;//模拟线程
@@ -30,7 +31,22 @@ public:
      * @return bool 返回 是否载入成功 
      */
     Q_INVOKABLE bool loadInsFile(const QString& path);
-    
+    Q_INVOKABLE void scheduler(int timeLen);//调度
+    Q_INVOKABLE inline bool isRunning()
+    {
+        return m_scheduler->isRunning();
+    }
+    inline QString curRunProc()
+    {
+        int cur=m_scheduler->curRunPorc();
+        if(cur==0)
+            return "";
+        return QString("P%1").arg(cur);
+    }
+signals:
+    void over();//调度完成
+    void tick();//一个时间片完成
+    void doSheduler();//开始调度
 public slots:
 };
 

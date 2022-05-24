@@ -54,11 +54,18 @@ public:
     {
         return m_running;
     }
+    inline int curRunPorc()
+    {
+        if(m_readyQue.isEmpty())
+            return 0;
+        return m_readyQue.first()->id();
+    }
 public slots:
     void run();//开始调度 
     void clear();//清空调度状态
 signals:
     void over();//调度完成信号
+    void tick();//
 };
 
 #endif // SHADULER_H

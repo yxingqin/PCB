@@ -12,7 +12,9 @@ Simulator::Simulator(QQmlApplicationEngine& engine)
     m_thread=new QThread(this);
     m_scheduler->moveToThread(m_thread);
     m_thread->start();
-
+    connect(m_scheduler,&Scheduler::over,this,&Simulator::over);
+    connect(m_scheduler,&Scheduler::tick,this,&Simulator::tick);
+    connect(this,&Simulator::doSheduler,m_scheduler,&Scheduler::run);
     //注册属性
     auto context=engine.rootContext();
     context->setContextProperty("$Simulator",this);
@@ -92,4 +94,12 @@ bool Simulator::loadInsFile(const QString& path)
         }    
     }
     return false;
+}
+
+void Simulator::scheduler(int timeLen)
+{
+    if(m_scheduler->isRunning())
+        return;
+    m_scheduler->setTimeSliceLen(timeLen);
+    emit doSheduler();
 }
