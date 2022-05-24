@@ -2,7 +2,7 @@
 #define SIMULATOR
 #include<QObject>
 #include<QtQml>
-#include"ModelPCBList.h"
+class QQmlApplicationEngine;
 class Scheduler;
 class QThread;
 /**
@@ -16,22 +16,10 @@ class Simulator:public QObject
     QML_ELEMENT
 private:
     static QObject* window;
-    QObject* m_window;//qml window 对象，调用qml方法
     QThread* m_thread;//模拟线程
     Scheduler* m_scheduler;//调度器
-    static Simulator* instence;
-    //每一个队列的视图
-    ModelPCBList m_modelReadyQue;
-    ModelPCBList m_modelInputQue;
-    ModelPCBList m_modelOutputQue;
-    ModelPCBList m_modelWaitQue;
-    ModelPCBList m_modelOverQue;
-private:
-    Simulator();
 public:
-    static void setWindow(QObject* window);
-    static Simulator* getInstence();
-    static void destroy();
+    Simulator(QQmlApplicationEngine& engine);
     static void printLog(const QString& msg);//打印日志
     static void printInfo(const QString& info,const QString& color="blue");
     virtual ~Simulator();
@@ -42,13 +30,8 @@ public:
      * @return bool 返回 是否载入成功 
      */
     Q_INVOKABLE bool loadInsFile(const QString& path);
-    inline ModelPCBList* getModelReadyQue()
-    {
-        return &m_modelReadyQue;
-    }
     
 public slots:
-    void onUpdateModel(int model);
 };
 
 #endif // SIMULATOR

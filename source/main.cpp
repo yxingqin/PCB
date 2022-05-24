@@ -19,12 +19,7 @@ int main(int argc, char *argv[])
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
-    auto s= Simulator::getInstence();
-    engine.rootContext()->setContextProperty("$Simulator",s);
-    engine.rootContext()->setContextProperty("$ModelReadyQue",s->getModelReadyQue());
     engine.load(url);
-    Simulator::setWindow(engine.rootObjects().first());
-    int ret = app.exec();
-    Simulator::destroy();
-    return ret;
+    Simulator s(engine);//会对engine 注册一些属性以及获取qml端的root对象
+    return  app.exec();
 }

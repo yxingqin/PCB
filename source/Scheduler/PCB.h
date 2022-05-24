@@ -49,7 +49,7 @@ public:
     {
         return m_totalTime;
     }
-    QString toString();
+    QString toString()const;
 private:
     int m_id;//进程id
     InsList m_insList;//指令表

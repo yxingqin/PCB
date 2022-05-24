@@ -12,6 +12,7 @@ find_package(Qt5 REQUIRED COMPONENTS Quick Core Qml)
 
 include_directories(source/Scheduler)
 include_directories(source/Model)
+include_directories(source/Simulator)
 file(GLOB_RECURSE SRCS RELATIVE  ${CMAKE_CURRENT_SOURCE_DIR} LINK_DIRECTORIES false
      ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/source/.h
     )

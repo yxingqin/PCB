@@ -12,18 +12,12 @@ void Scheduler::clear()
 {
     stop();
     QThread::msleep(10);
-    for (int i = 0; i < m_readyQue.size(); ++i)
-        delete m_readyQue[i];
     m_readyQue.clear();
-    for (auto p : m_inputQue)
-        delete p;
     m_inputQue.clear();
-    for (auto p : m_outputQue)
-        delete p;
     m_outputQue.clear();
-    for (auto p : m_waitQue)
-        delete p;
     m_waitQue.clear();
+    m_overQue.clear();
+    m_totaltime = 0;
 }
 
 void Scheduler::run()
@@ -56,21 +50,23 @@ void Scheduler::run()
                 if (pcb->curInsType() == InstructionType::CPU)
                 {
                     int rtime = pcb->tick(m_timeSliceLen);
+                    m_readyQue.updateRow(0);
                     int runtime = rtime > 0 ? m_timeSliceLen - rtime : m_timeSliceLen;
-                    QThread::msleep(runtime);
+                    QThread::msleep(runtime); //改进程占用pcb
                     Simulator::printLog(QString("p%1 执行CPU指令 %2 ms").arg(pcb->id()).arg(runtime));
+                    //激活调度程序
                     if (rtime >= 0)
-                        moveQue(pcb, &m_readyQue, 0);
+                        moveQue(pcb, m_readyQue, 0);
                     else
                     {
-                        m_readyQue.move(0, m_readyQue.size() - 1); //移动到队尾
+                        m_readyQue.rotate();
                         break;
                     }
                 }
                 else
                 {
                     //其他指令移动到 对应队列中
-                    moveQue(pcb, &m_readyQue, 0);
+                    moveQue(pcb, m_readyQue, 0);
                 }
             }
             int ticktime = QDateTime::currentMSecsSinceEpoch() - begin;
@@ -82,27 +78,33 @@ void Scheduler::run()
             */
             for (auto i = 0; i < m_inputQue.size(); ++i)
             {
-                if (m_inputQue[i]->tick(ticktime) >= 0)
+                PCB *pcb = m_inputQue.at(i);
+                if (pcb->tick(ticktime) >= 0)
                 {
-                    --i; //删除了元素，加回来
-                    moveQue(m_inputQue[i], &m_inputQue, i);
+                    --i;
+                    moveQue(pcb, m_inputQue, i);
                 }
+                m_inputQue.updateAll();
             }
             for (auto i = 0; i < m_outputQue.size(); ++i)
             {
-                if (m_outputQue[i]->tick(ticktime) >= 0)
+                PCB *pcb = m_outputQue.at(i);
+                if (pcb->tick(ticktime) >= 0)
                 {
                     --i;
-                    moveQue(m_outputQue[i], &m_outputQue, i);
+                    moveQue(pcb, m_outputQue, i);
                 }
+                m_outputQue.updateAll();
             }
             for (auto i = 0; i < m_waitQue.size(); ++i)
             {
-                if (m_waitQue[i]->tick(ticktime) >= 0)
+                PCB *pcb = m_waitQue.at(i);
+                if (pcb->tick(ticktime) >= 0)
                 {
                     --i;
-                    moveQue(m_waitQue[i], &m_waitQue, i);
+                    moveQue(pcb, m_waitQue, i);
                 }
+                m_waitQue.updateAll();
             }
             m_totaltime += begin - QDateTime::currentMSecsSinceEpoch();
             //判断 所有任务队列是否都为空 如果为都为空 那么模拟完毕
@@ -116,39 +118,39 @@ void Scheduler::run()
     }
 }
 
-void Scheduler::moveQue(PCB *pcb, PCBList *from, int index)
+void Scheduler::moveQue(PCB *pcb, PCBListModel &from, int index)
 {
-    from->removeAt(index);
+    from.removeAt(index);
     switch (pcb->curInsType())
     {
     case InstructionType::CPU:
     {
         Simulator::printLog(QString("p%i 加入 readyQue").arg(pcb->id()));
-        m_readyQue.push_back(pcb);
+        m_readyQue.push(pcb);
         break;
     }
     case InstructionType::INPUT:
     {
         Simulator::printLog(QString("p%1 加入InputQue").arg(pcb->id()));
-        m_inputQue.push_back(pcb);
+        m_inputQue.push(pcb);
         break;
     }
     case InstructionType::OUTPUT:
     {
         Simulator::printLog(QString("p%1 加入OutputQue").arg(pcb->id()));
-        m_outputQue.push_back(pcb);
+        m_outputQue.push(pcb);
         break;
     }
     case InstructionType::WAIT:
     {
         Simulator::printLog(QString("p%1 加入WaitQue").arg(pcb->id()));
-        m_outputQue.push_back(pcb);
+        m_outputQue.push(pcb);
         break;
     }
     default:
     {
         Simulator::printLog(QString("p%1 运行完毕").arg(pcb->id()));
-        m_overQue.push_back(pcb);
+        m_overQue.push(pcb);
         break;
     }
     }

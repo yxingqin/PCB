@@ -25,7 +25,7 @@ void PCB::addIns(Instruction ins)
     m_insList.push_back(ins);
 }
 
-QString PCB::toString()
+QString PCB::toString()const
 {
     QString ret;
     ret.append(QString("pcbId: %1  ").arg(m_id));

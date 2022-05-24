@@ -285,7 +285,7 @@ ApplicationWindow {
                             anchors.fill: parent
                             anchors.margins: 10
                             spacing:2
-                            model: $ModelReadyQue
+                            model: $ReadyQueModel
                             clip:true
                             header:_comLVHeader
                             delegate: _comLVDelegate
