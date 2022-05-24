@@ -21,11 +21,7 @@ Simulator::Simulator(QQmlApplicationEngine &engine)
     connect(m_scheduler, &Scheduler::over, this, &Simulator::over);
     connect(m_scheduler, &Scheduler::tick, this, [this]()
             {
-        m_modelReadyQue.updateData();
-        m_modelInputQue.updateData();
-        m_modelOutputQue.updateData();
-        m_modelWaitQue.updateData();
-        m_modelOverQue.updateData();
+                updateAll();
         emit tick(); });
     connect(this, &Simulator::doSheduler, m_scheduler, &Scheduler::run);
     //注册属性
@@ -61,7 +57,7 @@ void Simulator::printInfo(const QString &msg, const QString &color)
 bool Simulator::loadInsFile(const QString &path)
 {
     QFile file(path);
-    m_scheduler->clear();
+
     if (file.open(QIODevice::Text | QIODevice::ReadOnly))
     {
         QString data = file.readAll();
@@ -100,11 +96,12 @@ bool Simulator::loadInsFile(const QString &path)
         }
         if (pcbList.size() > 0)
         {
+            m_scheduler->clear();
             printInfo("指令加载成功");
             for (auto i : pcbList)
                 printLog(i->toString());
             m_scheduler->setReadyQue(std::move(pcbList));
-            m_modelReadyQue.updateData();
+            updateAll();
             return true;
         }
     }
@@ -136,4 +133,13 @@ void Simulator::saveLogFile(const QString &path)
         }
         file.close();
     }
+}
+
+void Simulator::updateAll()
+{
+    m_modelReadyQue.updateData();
+    m_modelInputQue.updateData();
+    m_modelOutputQue.updateData();
+    m_modelWaitQue.updateData();
+    m_modelOverQue.updateData();
 }

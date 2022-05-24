@@ -55,6 +55,7 @@ public:
             return "";
         return QString("P%1").arg(cur);
     }
+    void updateAll();
 signals:
     void over();//调度完成
     void tick();//一个时间片完成

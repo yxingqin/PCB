@@ -49,11 +49,15 @@ public:
     {
         return m_totalTime;
     }
+    inline void setBeginTime(int64_t tpoint)
+    {
+        m_timePoint=tpoint;
+    }
     QString toString()const;
 private:
     int m_id;//进程id
     InsList m_insList;//指令表
-    int m_timePoint;
+    int64_t m_timePoint;
     int m_totalTime;//进程周转的时间
 };
 

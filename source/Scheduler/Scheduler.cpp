@@ -24,6 +24,9 @@ void Scheduler::clear()
     for (auto p : m_waitQue)
         delete p;
     m_waitQue.clear();
+    for (auto p : m_overQue)
+        delete p;
+    m_overQue.clear();
     m_totaltime = 0;
 }
 
@@ -34,8 +37,11 @@ void Scheduler::run()
         Simulator::printInfo("开始模拟执行命令");
         m_running = true;
         m_stopFlag = true;
-        int64_t begin = 0;
-
+       int64_t begin = QDateTime::currentMSecsSinceEpoch();
+       for(auto p : m_readyQue)
+       {
+           p->setBeginTime(begin);
+       }
         while (m_stopFlag)
         {
             // TODO: 模拟调度程序
@@ -52,7 +58,6 @@ void Scheduler::run()
                 else
                     移动到对应队列
             */
-            emit tick();
             while (!m_readyQue.isEmpty())
             {
                 PCB *pcb = m_readyQue.first();
@@ -81,10 +86,10 @@ void Scheduler::run()
                 }
             }
             int ticktime = QDateTime::currentMSecsSinceEpoch() - begin;
-            if (ticktime < m_timeSliceLen)
+            if (ticktime < m_timeSliceLen) //如果 就绪队列为空 没人消耗 cpu  ，这里 休眠cpu 防止卡死
             {
-                QThread::msleep(m_timeSliceLen);
-                ticktime += m_timeSliceLen;
+                QThread::msleep(20);
+                ticktime += 20;
             }
             /*处理其他队列
                 假设 i/o wait 的资源无限，也就说  他们都可以并行运行
@@ -123,9 +128,11 @@ void Scheduler::run()
             if (m_readyQue.isEmpty() && m_inputQue.isEmpty() && m_outputQue.isEmpty() && m_waitQue.isEmpty())
             {
                 Simulator::printInfo(QString("模拟调度完成, 一共用时：%1 ms").arg(m_totaltime));
-                emit tick();
-                break;
+                for (auto p : m_overQue)
+                    Simulator::printLog(QString("p%1 一共用时：%2 ms").arg(p->id()).arg(p->totalTime()));
+                m_stopFlag = false;
             }
+            emit tick();
         }
         m_running = false;
     }
