@@ -53,6 +53,7 @@ public:
 private:
     int m_id;//进程id
     InsList m_insList;//指令表
+    int m_timePoint;
     int m_totalTime;//进程周转的时间
 };
 

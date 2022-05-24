@@ -11,7 +11,6 @@ int main(int argc, char *argv[])
 
     
     QQmlApplicationEngine engine;
-    engine.addImportPath(".");
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(
         &engine, &QQmlApplicationEngine::objectCreated,
@@ -20,7 +19,8 @@ int main(int argc, char *argv[])
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
-    engine.load(url);
     Simulator s(engine);//会对engine 注册一些属性以及获取qml端的root对象
+    engine.load(url);
+    Simulator::setWindow(engine.rootObjects().first());
     return  app.exec();
 }

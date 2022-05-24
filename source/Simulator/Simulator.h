@@ -3,6 +3,7 @@
 #include<QObject>
 #include<QtQml>
 #include"Scheduler.h"
+#include"ModelPCBList.h"
 class QQmlApplicationEngine;
 class QThread;
 /**
@@ -19,10 +20,17 @@ private:
     static QObject* window;
     QThread* m_thread;//模拟线程
     Scheduler* m_scheduler;//调度器
+    //每一个队列的视图
+    ModelPCBList m_modelReadyQue;
+    ModelPCBList m_modelInputQue;
+    ModelPCBList m_modelOutputQue;
+    ModelPCBList m_modelOverQue;
+    ModelPCBList m_modelWaitQue;
 public:
     Simulator(QQmlApplicationEngine& engine);
     static void printLog(const QString& msg);//打印日志
     static void printInfo(const QString& info,const QString& color="blue");
+    static void setWindow(QObject* window);
     virtual ~Simulator();
     /**
      * @brief 载入指令 

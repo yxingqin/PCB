@@ -12,18 +12,33 @@ Simulator::Simulator(QQmlApplicationEngine& engine)
     m_thread=new QThread(this);
     m_scheduler->moveToThread(m_thread);
     m_thread->start();
+    m_modelInputQue.setPCBList(&m_scheduler->m_inputQue);
+    m_modelOutputQue.setPCBList(&m_scheduler->m_outputQue);
+    m_modelReadyQue.setPCBList(&m_scheduler->m_readyQue);
+    m_modelOverQue.setPCBList(&m_scheduler->m_overQue);
+    m_modelOverQue.setShowModel(ModelPCBList::ShowModel::GLOBSTATUS);
     connect(m_scheduler,&Scheduler::over,this,&Simulator::over);
-    connect(m_scheduler,&Scheduler::tick,this,&Simulator::tick);
+    connect(m_scheduler,&Scheduler::tick,this,[this](){
+        m_modelReadyQue.updateData();
+        m_modelInputQue.updateData();
+        m_modelOutputQue.updateData();
+        m_modelWaitQue.updateData();
+        m_modelOverQue.updateData();
+        emit tick();
+    });
     connect(this,&Simulator::doSheduler,m_scheduler,&Scheduler::run);
     //注册属性
     auto context=engine.rootContext();
     context->setContextProperty("$Simulator",this);
-    context->setContextProperty("$ReadyQueModel",&m_scheduler->m_readyQue);
-    context->setContextProperty("$inputQueModel",&m_scheduler->m_inputQue);
-    context->setContextProperty("$ouputQueModel",&m_scheduler->m_outputQue);
-    context->setContextProperty("$WaitQueModel",&m_scheduler->m_waitQue);
-    context->setContextProperty("$OverModel",&m_scheduler->m_overQue);
-    window=engine.rootObjects().first();
+    context->setContextProperty("$ReadyQueModel",&m_modelReadyQue);
+    context->setContextProperty("$InputQueModel",&m_modelInputQue);
+    context->setContextProperty("$OuputQueModel",&m_modelOutputQue);
+    context->setContextProperty("$OverQueModel",&m_modelOverQue);
+    //context->setContextProperty("$WaitQueModel",&m_modelWaitQue);
+}
+void Simulator::setWindow(QObject* window)
+{
+    Simulator::window = window;
 }
 Simulator::~Simulator()
 {
@@ -90,6 +105,7 @@ bool Simulator::loadInsFile(const QString& path)
             for(auto i:pcbList)
                 printLog(i->toString());
             m_scheduler->setReadyQue(std::move(pcbList));
+            m_modelReadyQue.updateData();
             return true;
         }    
     }

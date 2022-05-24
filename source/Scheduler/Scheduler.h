@@ -18,17 +18,22 @@ private:
     int m_timeSliceLen;//时间片长度 
     // 处理机 只有一个 ,需要轮询，
     //I/O Wait队列 设置假设存在无限个
-    PCBListModel m_readyQue;//就绪队列等待使用CPU
-    PCBListModel m_inputQue;//读取等待
-    PCBListModel m_outputQue;//写入等待队列
-    PCBListModel m_waitQue;//其他等待队列
-    PCBListModel m_overQue;//完成队列 
+    // PCBListModel m_readyQue;//就绪队列等待使用CPU
+    // PCBListModel m_inputQue;//读取等待
+    // PCBListModel m_outputQue;//写入等待队列
+    // PCBListModel m_waitQue;//其他等待队列
+    // PCBListModel m_overQue;//完成队列 
+    PCBList m_readyQue;//就绪队列等待使用CPU
+    PCBList m_inputQue;//读取等待
+    PCBList m_outputQue;//写入等待队列
+    PCBList m_waitQue;//其他等待队列
+    PCBList m_overQue;//完成队列 
     int m_totaltime;//调度总时长
     bool m_running;
     bool m_stopFlag;
 private:
     //将根据当指令类型 将pcb移动到指定队列的队尾
-    void moveQue(PCB* pcb,PCBListModel& from,int index=0);
+    void moveQue(PCB* pcb,PCBList& from,int index=0);
 public:
     explicit Scheduler(QObject* parent=nullptr);
     inline void setTimeSliceLen(int timeSlice)
@@ -38,7 +43,7 @@ public:
 
     inline void setReadyQue(PCBList&& list)
     {
-        m_readyQue.setPCBList(std::move(list));
+        m_readyQue=std::move(list);
     }
 
     inline void stop()

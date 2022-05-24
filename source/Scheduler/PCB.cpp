@@ -1,13 +1,18 @@
 #include"PCB.h"
-
-PCB::PCB(int id):m_id(id),m_totalTime(0)
+#include<QDateTime>
+PCB::PCB(int id):m_id(id),m_totalTime(0),m_timePoint(0)
 {
 }
 PCB::~PCB(){}
 
 int PCB::tick(int ticktime)
 {
+
     int tmp = ticktime - m_insList.front().runTime;
+    if(!m_timePoint==0)
+    {
+        m_totalTime+=QDateTime::currentMSecsSinceEpoch()-m_timePoint;
+    }
     if(tmp>=0)
     {
         m_totalTime+=m_insList.front().runTime;
@@ -18,6 +23,7 @@ int PCB::tick(int ticktime)
         m_insList.front().runTime -= ticktime;//更新指令时间
         m_totalTime+=ticktime;
     }
+    m_timePoint=QDateTime::currentMSecsSinceEpoch();//记录上一次的时间
     return tmp;
 }
 void PCB::addIns(Instruction ins)

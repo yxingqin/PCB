@@ -334,10 +334,10 @@ ApplicationWindow {
                             anchors.fill: parent
                             anchors.margins: 10
                             spacing:2
-                            model: 15
+                            model: $InputQueModel
                             clip:true
                             header:_comLVHeader
-                            //                            delegate: _comLVDelegate
+                            delegate: _comLVDelegate
                         }
                     }
                     XGroupBox {
@@ -352,10 +352,10 @@ ApplicationWindow {
                             anchors.fill: parent
                             anchors.margins: 10
                             spacing:2
-                            model: 15
+                            model: $OuputQueModel
                             clip:true
                             header:_comLVHeader
-                            //                            delegate: _comLVDelegate
+                            delegate: _comLVDelegate
                         }
                     }
                     XGroupBox {
@@ -366,14 +366,14 @@ ApplicationWindow {
                         titleTextColor:_theme.textColor
                         titleText: "其他等待队列"
                         ListView {
-                            id:_lv_otherWait
+                            id:_lv_other
                             anchors.fill: parent
                             anchors.margins: 10
                             spacing:2
-                            model: 15
+                            model: $WaitQueModel
                             clip:true
                             header:_comLVHeader
-                            //                            delegate: _comLVDelegate
+                            delegate: _comLVDelegate
                         }
                     }
                     XGroupBox {
@@ -388,7 +388,7 @@ ApplicationWindow {
                             anchors.fill: parent
                             anchors.margins: 10
                             spacing:2
-                            model: 15
+                            model: $OverQueModel
                             clip:true
                             header: Rectangle {
                                 width: parent.width
@@ -423,14 +423,14 @@ ApplicationWindow {
                                         verticalAlignment: Text.AlignVCenter
                                         width: parent.width/2
                                         height: parent.height
-                                        text: "p"+index
+                                        text: "p"+pcbId
                                     }
                                     Text {
                                         horizontalAlignment: Text.AlignHCenter
                                         verticalAlignment: Text.AlignVCenter
                                         width: parent.width/2
                                         height: parent.height
-                                        text: index+" ms"
+                                        text: timeLen+" ms"
                                     }
                                 }
                             }
