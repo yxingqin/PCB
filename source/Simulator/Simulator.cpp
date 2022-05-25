@@ -93,6 +93,8 @@ bool Simulator::loadInsFile(const QString &path)
             }
             if (pcb->insCount() > 0)
                 pcbList.push_back(pcb);
+            else
+                delete pcb;
         }
         if (pcbList.size() > 0)
         {

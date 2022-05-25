@@ -52,7 +52,7 @@ public:
     {
         int cur=m_scheduler->curRunPorc();
         if(cur==0)
-            return "";
+            return QString();
         return QString("P%1").arg(cur);
     }
     void updateAll();

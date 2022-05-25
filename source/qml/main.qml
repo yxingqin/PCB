@@ -159,7 +159,8 @@ ApplicationWindow {
     Component {
         id:_comLVDelegate
         Rectangle {
-            width: parent.width
+            width: _lv_ready.width
+
             color:index%2===0?_theme.secondaryColor:_theme.thirdaryColor;
             height: 22
             border.color:"#FFF"
@@ -425,7 +426,7 @@ ApplicationWindow {
                                 }
                             }
                             delegate:Rectangle {
-                                width: parent.width
+                                width: _lv_other.width
                                 color:index%2===0?_theme.secondaryColor:_theme.thirdaryColor;
                                 height: 22
                                 border.color:"#FFF"
