@@ -70,9 +70,8 @@ ApplicationWindow {
         title: "选择路径"
         selectExisting: false
         folder: shortcuts.desktop
-        nameFilters:[ "指令文件 (*.txt)", "All files (*)" ]
+        nameFilters:[ "日志文件 (*.txt)", "All files (*)" ]
         onAccepted: {
-            console.log(fileUrl);
             let path=_fileDialogOut.fileUrls[0].replace("file:///","");
             $Simulator.saveLogFile(path)
         }
@@ -85,6 +84,37 @@ ApplicationWindow {
         onAccepted: {
             _tfFile.text=_fileDialog.fileUrl;
             _loadInsFile();
+        }
+    }
+    Dialog {
+        id:_about
+        title: "关于"
+        modality:Qt.ApplicationModal
+        contentItem: TextArea {
+            background: Rectangle {
+                color:_theme.primaryColor
+            }
+            color: _theme.textColor
+            implicitWidth: 320
+            implicitHeight:160
+            textFormat: TextEdit.RichText
+            font.pointSize: 16
+            verticalAlignment:  TextEdit.AlignVCenter
+            readOnly:true
+            selectByMouse:true
+            text:"<p>
+                    <ul>
+                       <li>作者：越行勤 </li>
+                       <li>博客： <a href='https://blog.yxqin.top'>越行勤’s Blog</a></li>
+                       <li>gitee: <a href='https://gitee.com/yuexingqin/pcb'>PCB</a></li>
+                       <li>github: <a href='https://github.com/yxingqin/pcb'>PCB</a></li>
+                       <li>使用说明：见readme</li>
+                    </ul>
+                  </p>
+                 "
+            onLinkActivated: {
+                Qt.openUrlExternally(link)
+            }
         }
     }
     menuBar: MenuBar{
@@ -122,6 +152,7 @@ ApplicationWindow {
             title:"帮助"
             Action {
                 text: "关于"
+                onTriggered: _about.open()
             }
         }
     }
@@ -467,7 +498,7 @@ ApplicationWindow {
                 TextArea {
                     id:_console
                     objectName:"_console"
-                    textFormat: "RichText"
+                    textFormat: TextEdit.RichText
                     wrapMode: "Wrap"
                     selectByMouse: true
                     color:_theme.textColor

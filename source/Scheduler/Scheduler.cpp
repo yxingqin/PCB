@@ -67,7 +67,7 @@ void Scheduler::run()
                     int runtime = rtime > 0 ? m_timeSliceLen - rtime : m_timeSliceLen;
                     QThread::msleep(runtime);
                     Simulator::printLog(QString("p%1 执行CPU指令%2 ms").arg(pcb->id()).arg(runtime));
-                    if (rtime > 0)
+                    if (rtime >= 0)
                         moveQue(pcb, m_readyQue, 0);
                     else
                     {
