@@ -18,7 +18,7 @@ public:
     /**
      * @brief 更新当前进程状态  
      * 
-     * @param time   当执行cpu 指令时，表示给与时间片大小 ，当执行其他指令时  表示 处理机消耗时间
+     * @param ticktime   当执行cpu 指令时，表示给与时间片大小 ，当执行其他指令时  表示 处理机消耗时间
      * @return bool 返回当前指令是否执行完毕
      */
     bool tick(int ticktime);

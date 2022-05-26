@@ -34,7 +34,7 @@ bool PCB::tick(int ticktime)
     }
     // 指令执行完了 计算周转时间
     if (m_insList.empty())
-        m_totalTime += QDateTime::currentMSecsSinceEpoch() - m_beinTime;
+        m_totalTime = QDateTime::currentMSecsSinceEpoch() - m_beinTime;
     return isOver;
 }
 void PCB::addIns(Instruction ins)

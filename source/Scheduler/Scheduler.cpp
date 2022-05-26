@@ -45,7 +45,7 @@ void Scheduler::run()
         }
         while (m_stopFlag)
         {
-            int64_t tpoint = QDateTime::currentMSecsSinceEpoch(); //记录 处理机 消耗时间
+            int64_t tpoint = QDateTime::currentMSecsSinceEpoch(); //  用于  记录处理机消耗时间
             /* 处理 就绪队列
             while(true)
                 if 就绪队列为空 ：
@@ -64,7 +64,7 @@ void Scheduler::run()
                 if (pcb->curInsType() == InstructionType::CPU)
                 {
                     if (pcb->tick(m_timeSliceLen))
-                        moveQue(pcb, m_readyQue, 0); //执行完了 移动到 对应队列 否则周转
+                        movePCB(pcb, m_readyQue, 0); //执行完了 移动到 对应队列 否则周转
                     else
                     {
                         auto size = m_readyQue.size();
@@ -76,7 +76,7 @@ void Scheduler::run()
                 else
                 {
                     //其他指令移动到 对应队列中
-                    moveQue(pcb, m_readyQue, 0);
+                    movePCB(pcb, m_readyQue, 0);
                 }
             }
             ticktime = QDateTime::currentMSecsSinceEpoch() - tpoint; //记录消耗时间
@@ -96,7 +96,7 @@ void Scheduler::run()
             {
                 if (m_inputQue[i]->tick(ticktime))
                 {
-                    moveQue(m_inputQue[i], m_inputQue, i);
+                    movePCB(m_inputQue[i], m_inputQue, i);
                     --i;
                 }
             }
@@ -106,7 +106,7 @@ void Scheduler::run()
                 if (m_outputQue[i]->tick(ticktime))
                 {
 
-                    moveQue(m_outputQue[i], m_outputQue, i);
+                    movePCB(m_outputQue[i], m_outputQue, i);
                     --i;
                 }
             }
@@ -115,7 +115,7 @@ void Scheduler::run()
             {
                 if (m_waitQue[i]->tick(ticktime))
                 {
-                    moveQue(m_waitQue[i], m_waitQue, i);
+                    movePCB(m_waitQue[i], m_waitQue, i);
                     --i;
                 }
             }
@@ -135,7 +135,7 @@ void Scheduler::run()
     }
 }
 
-void Scheduler::moveQue(PCB *pcb, PCBList &from, int index)
+void Scheduler::movePCB(PCB *pcb, PCBList &from, int index)
 {
     from.removeAt(index);
     switch (pcb->curInsType())

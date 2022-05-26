@@ -33,7 +33,7 @@ private:
     bool m_stopFlag;
 private:
     //将根据当指令类型 将pcb移动到指定队列的队尾
-    void moveQue(PCB* pcb,PCBList& from,int index=0);
+    void movePCB(PCB* pcb,PCBList& from,int index=0);
 public:
     explicit Scheduler(QObject* parent=nullptr);
     inline void setTimeSliceLen(int timeSlice)
