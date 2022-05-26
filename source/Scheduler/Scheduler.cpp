@@ -7,7 +7,10 @@ Scheduler::Scheduler(QObject *parent)
       m_timeSliceLen(100), m_totaltime(0)
 {
 }
-
+Scheduler::~Scheduler()
+{
+    clear();
+}
 void Scheduler::clear()
 {
     stop();

@@ -36,6 +36,7 @@ private:
     void movePCB(PCB* pcb,PCBList& from,int index=0);
 public:
     explicit Scheduler(QObject* parent=nullptr);
+    virtual ~Scheduler();
     inline void setTimeSliceLen(int timeSlice)
     {
        m_timeSliceLen=timeSlice;

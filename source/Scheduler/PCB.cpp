@@ -5,7 +5,9 @@
 PCB::PCB(int id) : m_id(id), m_totalTime(0), m_beinTime(0)
 {
 }
-PCB::~PCB() {}
+PCB::~PCB() {
+}
+
 
 bool PCB::tick(int ticktime)
 {
