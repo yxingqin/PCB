@@ -1,26 +1,41 @@
 #include "PCB.h"
 #include <QDateTime>
-PCB::PCB(int id) : m_id(id), m_totalTime(0), m_timePoint(0)
+#include <QThread>
+#include "Simulator.h"
+PCB::PCB(int id) : m_id(id), m_totalTime(0), m_beinTime(0)
 {
 }
 PCB::~PCB() {}
 
-int PCB::tick(int ticktime)
+bool PCB::tick(int ticktime)
 {
-
-    int tmp = ticktime - m_insList.front().runTime;
-    
-    if (tmp >= 0)
+    auto &ins = m_insList.front();
+    bool isOver = false;
+    //如果是CPU 指令 使用 slepp 代替 消耗时间
+    //如果是其他指令 更新剩余时间
+    if (ins.runTime > ticktime) //当前时间片能否运行完毕
     {
-        m_totalTime += m_insList.front().runTime;
-        m_insList.pop_front(); //删除改指令
+        if (ins.iType == InstructionType::CPU)
+        {
+            Simulator::printLog(QString("p%1 执行CPU指令%2 ms").arg(m_id).arg(ticktime));
+            QThread::msleep(ticktime);
+        }
+        ins.runTime -= ticktime;
     }
     else
-        m_insList.front().runTime -= ticktime; //更新指令时间
-    //计算消耗时间
-    m_totalTime += QDateTime::currentMSecsSinceEpoch() - m_timePoint;
-    m_timePoint = QDateTime::currentMSecsSinceEpoch(); //记录上一次的时间
-    return tmp;
+    {
+        if (ins.iType == InstructionType::CPU)
+        {
+            Simulator::printLog(QString("p%1 执行CPU指令%2 ms").arg(m_id).arg(ins.runTime));
+            QThread::msleep(ins.runTime);
+        }
+        m_insList.pop_front();
+        isOver = true;
+    }
+    // 指令执行完了 计算周转时间
+    if (m_insList.empty())
+        m_totalTime += QDateTime::currentMSecsSinceEpoch() - m_beinTime;
+    return isOver;
 }
 void PCB::addIns(Instruction ins)
 {

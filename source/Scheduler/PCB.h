@@ -18,13 +18,10 @@ public:
     /**
      * @brief 更新当前进程状态  
      * 
-     * @param time 时间片大小 
-     * @return int 返回时间片剩余时间
-     *             >0  运行完毕，时间片有剩余
-     *             ==0 恰好运行完毕
-     *             <0  没有运行完毕
+     * @param time   当执行cpu 指令时，表示给与时间片大小 ，当执行其他指令时  表示 处理机消耗时间
+     * @return bool 返回当前指令是否执行完毕
      */
-    int tick(int time);
+    bool tick(int ticktime);
     inline InstructionType curInsType()const
     {
         if(!m_insList.empty())
@@ -51,13 +48,13 @@ public:
     }
     inline void setBeginTime(int64_t tpoint)
     {
-        m_timePoint=tpoint;
+        m_beinTime=tpoint;
     }
     QString toString()const;
 private:
     int m_id;//进程id
     InsList m_insList;//指令表
-    int64_t m_timePoint;
+    int64_t m_beinTime;//开始运行时间
     int m_totalTime;//进程周转的时间
 };
 

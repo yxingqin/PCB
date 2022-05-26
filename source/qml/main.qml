@@ -271,6 +271,7 @@ ApplicationWindow {
                     }
                     SpinBox {
                         id:_sbtimebeSlice
+                        editable:true
                         value: 100
                         from:50
                         to:5000
