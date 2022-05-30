@@ -31,9 +31,11 @@ private:
     int m_totaltime;//调度总时长
     bool m_running;
     bool m_stopFlag;
+    int m_curPcbId;//当前运行进程id  0 表示没有当前没有进程运行
+
 private:
-    //将根据当指令类型 将pcb移动到指定队列的队尾
-    void movePCB(PCB* pcb,PCBList& from,int index=0);
+    void movePCB(PCB* pcb,PCBList& from,int index=0);//从一个队列的 index处移动另一个队列的index处
+    void movePCBToQue(PCB* pcb);//将根据当指令类型 将pcb移动到指定队列的队尾
 public:
     explicit Scheduler(QObject* parent=nullptr);
     virtual ~Scheduler();
@@ -62,16 +64,15 @@ public:
     }
     inline int curRunPorc()
     {
-        if(m_readyQue.isEmpty())
-            return 0;
-        return m_readyQue.first()->id();
+        return m_curPcbId;
     }
+    void pushReadQue(PCB* pcb,PCBList& list,int index);
 public slots:
     void run();//开始调度 
     void clear();//清空调度状态
 signals:
     void over();//调度完成信号
-    void tick();//
+    void tick();//通知界面更新
 };
 
 #endif // SHADULER_H

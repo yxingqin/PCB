@@ -11,7 +11,7 @@ PCB::~PCB() {
 
 bool PCB::tick(int ticktime)
 {
-    auto &ins = m_insList.front();
+    auto &ins = *m_curListIt;
     bool isOver = false;
     //如果是CPU 指令 使用 slepp 代替 消耗时间
     //如果是其他指令 更新剩余时间
@@ -31,12 +31,12 @@ bool PCB::tick(int ticktime)
             Simulator::printLog(QString("p%1 执行CPU指令%2 ms").arg(m_id).arg(ins.runTime));
             QThread::msleep(ins.runTime);
         }
-        m_insList.pop_front();
+        ++m_curListIt;
         isOver = true;
     }
     // 指令执行完了 计算周转时间
-    if (m_insList.empty())
-        m_totalTime = QDateTime::currentMSecsSinceEpoch() - m_beinTime;
+    if (m_curListIt==m_insList.end())
+        m_totalTime += QDateTime::currentMSecsSinceEpoch() - m_beinTime;
     return isOver;
 }
 void PCB::addIns(Instruction ins)

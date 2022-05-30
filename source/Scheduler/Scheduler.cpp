@@ -4,7 +4,7 @@
 #include <QDateTime>
 Scheduler::Scheduler(QObject *parent)
     : QObject(parent), m_running(false), m_stopFlag(false),
-      m_timeSliceLen(100), m_totaltime(0)
+      m_timeSliceLen(100), m_totaltime(0), m_curPcbId(0)
 {
 }
 Scheduler::~Scheduler()
@@ -41,65 +41,45 @@ void Scheduler::run()
         m_running = true;
         m_stopFlag = true;
         int ticktime = 0;
+        //统计开始运行时间
         int64_t begin = QDateTime::currentMSecsSinceEpoch();
         for (auto p : m_readyQue)
         {
             p->setBeginTime(begin);
         }
+        //调度循环
         while (m_stopFlag)
         {
-            int64_t tpoint = QDateTime::currentMSecsSinceEpoch(); //  用于  记录处理机消耗时间
-            /* 处理 就绪队列
-            while(true)
-                if 就绪队列为空 ：
-                    处理其他队列
-                if 队头当前指令是CPU指令 do 消耗时间片 (使用 sleep进行模拟) :
-                    if 该指令运行完毕（时间片存在剩余 tick()>=0 :
-                       根据下一个指令移动对应队列的队尾
-                    else :// 该指令没有执行完毕
-                        移动到队尾，处理其他队列
-                else
-                    移动到对应队列
-            */
-            while (!m_readyQue.isEmpty())
+            m_curPcbId = 0;                                       //表示当前没有进程占用cpu
+            int64_t tpoint = QDateTime::currentMSecsSinceEpoch(); //用于记录处理机消耗时间
+            //处理就绪队列
+            if (!m_readyQue.isEmpty())
             {
                 PCB *pcb = m_readyQue.first();
+                m_readyQue.pop_front(); //移除就绪队列 进入运行态
+                m_curPcbId = pcb->id();
                 if (pcb->curInsType() == InstructionType::CPU)
-                {
                     if (pcb->tick(m_timeSliceLen))
-                        movePCB(pcb, m_readyQue, 0); //执行完了 移动到 对应队列 否则周转
+                        movePCBToQue(pcb); //执行完了 移动到 对应队列 否则周转
                     else
-                    {
-                        auto size = m_readyQue.size();
-                        if (size > 1)                     //队列大于1 才进行周转
-                            m_readyQue.move(0, size - 1); //移动到队尾
-                        break;                            //去检查其  其他队列清空
-                    }
-                }
+                        m_readyQue.push_back(pcb);
                 else
-                {
-                    //其他指令移动到 对应队列中
-                    movePCB(pcb, m_readyQue, 0);
-                }
+                    //其他指令移动到  移动到指定队列中
+                    movePCBToQue(pcb); //这里消耗很少 所以直接进入下一个时间片 也就是不break了
             }
+            // scheduler重新拿到CPU 去检查其他队列，之后在进入下一轮时间片
             ticktime = QDateTime::currentMSecsSinceEpoch() - tpoint; //记录消耗时间
-
-            if (ticktime <= 20)                          //休眠cpu 防止界面更新太快导致 卡死
+            if (ticktime <= 5)                                       //休眠cpu 防止界面更新太快导致 卡死
             {
-                QThread::msleep(20);
-                ticktime += 20;
+                QThread::msleep(5);
+                ticktime += 5;
             }
-            /*处理其他队列
-                假设 i/o wait 的资源无限，也就说  他们都可以并行运行
-                遍历每一个进程, 模拟执行对应的指令（减去对应的处理机占用时间，简单估算为 ticktime）
-                if 该指令执行完毕 :
-                    根据下一个指令移动到新的队列
-            */
+            //处理其他队列
             for (auto i = 0; i < m_inputQue.size(); ++i)
             {
                 if (m_inputQue[i]->tick(ticktime))
                 {
-                    movePCB(m_inputQue[i], m_inputQue, i);
+                    pushReadQue(m_inputQue[i], m_inputQue, i);
                     --i;
                 }
             }
@@ -108,8 +88,7 @@ void Scheduler::run()
             {
                 if (m_outputQue[i]->tick(ticktime))
                 {
-
-                    movePCB(m_outputQue[i], m_outputQue, i);
+                    pushReadQue(m_outputQue[i], m_outputQue, i);
                     --i;
                 }
             }
@@ -118,19 +97,21 @@ void Scheduler::run()
             {
                 if (m_waitQue[i]->tick(ticktime))
                 {
-                    movePCB(m_waitQue[i], m_waitQue, i);
+                    pushReadQue(m_waitQue[i], m_waitQue, i);
                     --i;
                 }
             }
             //判断 所有任务队列是否都为空 如果为都为空 那么模拟完毕
             if (m_readyQue.isEmpty() && m_inputQue.isEmpty() && m_outputQue.isEmpty() && m_waitQue.isEmpty())
             {
-                for (auto p : m_overQue)
-                    Simulator::printLog(QString("p%1 一共用时：%2 ms").arg(p->id()).arg(p->totalTime()));
                 m_stopFlag = false;
+                emit over();
+                m_curPcbId = 0; //表示当前没有进程占用cpu
             }
-            emit tick();
+            emit tick(); //更新界面
         }
+        for (auto p : m_overQue)
+            Simulator::printLog(QString("p%1 一共用时：%2 ms").arg(p->id()).arg(p->totalTime()));
         // 计算调度用时
         m_totaltime = QDateTime::currentMSecsSinceEpoch() - begin;
         Simulator::printInfo(QString("模拟调度完成, 调度用时：%1 ms").arg(m_totaltime));
@@ -141,6 +122,10 @@ void Scheduler::run()
 void Scheduler::movePCB(PCB *pcb, PCBList &from, int index)
 {
     from.removeAt(index);
+    movePCBToQue(pcb);
+}
+void Scheduler::movePCBToQue(PCB *pcb)
+{
     switch (pcb->curInsType())
     {
     case InstructionType::CPU:
@@ -174,4 +159,10 @@ void Scheduler::movePCB(PCB *pcb, PCBList &from, int index)
         break;
     }
     }
+}
+void Scheduler::pushReadQue(PCB *pcb, PCBList &list, int index)
+{
+    Simulator::printLog(QString("p%1 加入ReadQue").arg(pcb->id()));
+    list.removeAt(index);
+    m_readyQue.push_back(pcb);
 }
